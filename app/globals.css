@@ -33,6 +33,10 @@ textarea {
   padding-bottom: max(1rem, env(safe-area-inset-bottom));
 }
 
+.safe-top {
+  padding-top: max(1rem, env(safe-area-inset-top));
+}
+
 .episode-grid {
   grid-template-columns: repeat(5, minmax(0, 1fr));
 }
