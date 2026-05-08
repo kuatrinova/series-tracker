@@ -117,17 +117,14 @@ export async function setSeasonWatched(params: {
 }
 
 export async function shareSeriesWithUser(fromUserId: string, toUserId: string, seriesId: string) {
-  const { error } = await supabase.from("user_series").upsert(
-    {
-      user_id: toUserId,
-      series_id: seriesId,
-      platform: "Otra",
-      status: "pending",
-      shared_by: fromUserId
-    },
-    { onConflict: "user_id,series_id" }
-  );
-  if (error) throw error;
+  const { error } = await supabase.from("user_series").insert({
+    user_id: toUserId,
+    series_id: seriesId,
+    platform: "Otra",
+    status: "pending",
+    shared_by: fromUserId
+  });
+  if (error && error.code !== "23505") throw error;
 }
 
 export async function deleteUserSeries(userId: string, userSeriesId: string, seriesId: string) {

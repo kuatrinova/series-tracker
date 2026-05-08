@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { ArrowLeft, CheckCheck, Send, Trash2 } from "lucide-react";
 import { Button } from "@/components/Button";
 import { Select } from "@/components/Field";
@@ -25,11 +26,41 @@ export function SeriesDetailView({
   onDelete: () => void;
   onShare: (toUserId: string) => void;
 }) {
+  const [showShareMenu, setShowShareMenu] = useState(false);
   const progress = progressPercent(item.seasons, item.watched);
   const watchedSet = new Set(item.watched.map((episode) => episodeKey(episode.season_number, episode.episode_number)));
 
+  function handleShare() {
+    if (otherUsers.length === 1) {
+      onShare(otherUsers[0].id);
+    } else {
+      setShowShareMenu(true);
+    }
+  }
+
   return (
     <div className="min-h-screen px-4 py-5 safe-bottom">
+      {showShareMenu ? (
+        <div className="fixed inset-0 z-50 flex items-end bg-black/60" onClick={() => setShowShareMenu(false)}>
+          <div className="w-full rounded-t-2xl border-t border-line bg-panel p-5" onClick={(e) => e.stopPropagation()}>
+            <p className="mb-4 text-sm font-semibold text-zinc-300">Enviar a...</p>
+            <div className="grid gap-2">
+              {otherUsers.map((user) => (
+                <button
+                  key={user.id}
+                  onClick={() => { onShare(user.id); setShowShareMenu(false); }}
+                  className="rounded-md border border-line bg-ink px-4 py-3 text-left text-sm text-zinc-100 hover:border-mint"
+                >
+                  {user.display_name || user.email}
+                </button>
+              ))}
+            </div>
+            <button onClick={() => setShowShareMenu(false)} className="mt-4 w-full text-sm text-zinc-500">
+              Cancelar
+            </button>
+          </div>
+        </div>
+      ) : null}
       <header className="flex items-center gap-3">
         <button onClick={onBack} className="grid h-11 w-11 place-items-center rounded-md border border-line bg-panel">
           <ArrowLeft size={20} />
@@ -40,8 +71,8 @@ export function SeriesDetailView({
         </div>
         {otherUsers.length > 0 ? (
           <button
-            onClick={() => onShare(otherUsers[0].id)}
-            title={`Enviar a ${otherUsers[0].display_name || otherUsers[0].email}`}
+            onClick={handleShare}
+            title="Enviar a otro usuario"
             className="grid h-11 w-11 shrink-0 place-items-center rounded-md border border-line bg-panel text-mint hover:border-mint"
           >
             <Send size={18} />
