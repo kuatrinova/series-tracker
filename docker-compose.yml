@@ -1,0 +1,16 @@
+services:
+  seriestracker:
+    build: .
+    container_name: seriestracker
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "3001:3000"
+    networks:
+      - default
+      - dokploy-network
+
+networks:
+  dokploy-network:
+    external: true
