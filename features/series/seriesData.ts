@@ -136,7 +136,8 @@ export async function addManualSeries(params: {
       rating: null,
       status: "En emisión",
       platforms: [params.platform],
-      seasons: params.seasons
+      seasons: params.seasons,
+      poster_url: null
     },
     platform: params.platform,
     status: params.status
