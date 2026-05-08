@@ -14,6 +14,7 @@ import {
   deleteUserSeries,
   fetchUserSeries,
   setSeasonWatched,
+  shareSeriesWithUser,
   toggleEpisode,
   updateUserSeries
 } from "@/features/series/seriesData";
@@ -26,6 +27,7 @@ type Screen = "list" | "add" | "detail" | "profile" | "admin";
 export default function Home() {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [otherProfiles, setOtherProfiles] = useState<Profile[]>([]);
   const [items, setItems] = useState<SeriesWithUserData[]>([]);
   const [screen, setScreen] = useState<Screen>("list");
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -38,28 +40,25 @@ export default function Home() {
 
   const refresh = useCallback(async (userId: string) => {
     setError("");
-    const {
-      data: { user }
-    } = await supabase.auth.getUser();
+    const { data: { user } } = await supabase.auth.getUser();
     const email = (user?.email || user?.user_metadata?.email || `${userId}@local.seriestracker`).toLowerCase();
     const displayName = user?.user_metadata?.display_name || email.split("@")[0];
 
     await supabase.from("profiles").upsert(
-      {
-        id: userId,
-        email,
-        display_name: displayName
-      },
+      { id: userId, email, display_name: displayName },
       { onConflict: "id" }
     );
 
-    const [seriesData, profileResult] = await Promise.all([
+    const [seriesData, profileResult, othersResult] = await Promise.all([
       fetchUserSeries(userId),
-      supabase.from("profiles").select("*").eq("id", userId).single()
+      supabase.from("profiles").select("*").eq("id", userId).single(),
+      supabase.from("profiles").select("*").neq("id", userId)
     ]);
+
     if (profileResult.error) throw profileResult.error;
     setItems(seriesData);
     setProfile(profileResult.data as Profile);
+    setOtherProfiles((othersResult.data ?? []) as Profile[]);
   }, []);
 
   useEffect(() => {
@@ -74,12 +73,11 @@ export default function Home() {
       if (!data.session) setLoading(false);
     });
 
-    const {
-      data: { subscription }
-    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, nextSession) => {
       setSession(nextSession);
       if (!nextSession) {
         setProfile(null);
+        setOtherProfiles([]);
         setItems([]);
         setScreen("list");
       }
@@ -146,6 +144,7 @@ export default function Home() {
       {screen === "detail" && selected ? (
         <SeriesDetailView
           item={selected}
+          otherUsers={otherProfiles}
           onBack={() => setScreen("list")}
           onUpdateMeta={(values) => mutate(() => updateUserSeries(selected.id, values))}
           onToggleEpisode={(seasonNumber, episodeNumber, watched) =>
@@ -176,6 +175,7 @@ export default function Home() {
               setScreen("list");
             })
           }
+          onShare={(toUserId) => mutate(() => shareSeriesWithUser(session.user.id, toUserId, selected.series_id))}
         />
       ) : null}
       {screen === "profile" ? (

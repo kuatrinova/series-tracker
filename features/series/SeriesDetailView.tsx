@@ -1,25 +1,29 @@
 "use client";
 
-import { ArrowLeft, CheckCheck, Trash2 } from "lucide-react";
+import { ArrowLeft, CheckCheck, Send, Trash2 } from "lucide-react";
 import { Button } from "@/components/Button";
 import { Select } from "@/components/Field";
 import { progressPercent, episodeKey } from "@/lib/progress";
-import { platforms, SeriesWithUserData, statusLabels, WatchStatus } from "@/lib/types";
+import { platforms, Profile, SeriesWithUserData, statusLabels, WatchStatus } from "@/lib/types";
 
 export function SeriesDetailView({
   item,
+  otherUsers,
   onBack,
   onUpdateMeta,
   onToggleEpisode,
   onSetSeason,
-  onDelete
+  onDelete,
+  onShare
 }: {
   item: SeriesWithUserData;
+  otherUsers: Profile[];
   onBack: () => void;
   onUpdateMeta: (values: { platform?: string; status?: WatchStatus }) => void;
   onToggleEpisode: (seasonNumber: number, episodeNumber: number, watched: boolean) => void;
   onSetSeason: (seasonNumber: number, episodeCount: number, watched: boolean) => void;
   onDelete: () => void;
+  onShare: (toUserId: string) => void;
 }) {
   const progress = progressPercent(item.seasons, item.watched);
   const watchedSet = new Set(item.watched.map((episode) => episodeKey(episode.season_number, episode.episode_number)));
@@ -34,6 +38,15 @@ export function SeriesDetailView({
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-mint">Detalle</p>
           <h1 className="truncate text-2xl font-bold">{item.series.title}</h1>
         </div>
+        {otherUsers.length > 0 ? (
+          <button
+            onClick={() => onShare(otherUsers[0].id)}
+            title={`Enviar a ${otherUsers[0].display_name || otherUsers[0].email}`}
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-md border border-line bg-panel text-mint hover:border-mint"
+          >
+            <Send size={18} />
+          </button>
+        ) : null}
         <button
           onClick={() => {
             if (confirm(`¿Eliminar "${item.series.title}" de tu lista?`)) onDelete();
