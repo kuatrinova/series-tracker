@@ -20,8 +20,14 @@ export function SeriesCard({
       className="w-full rounded-md border border-line bg-panel p-4 text-left transition hover:border-mint/50"
     >
       <div className="flex items-start gap-3">
-        <div className="grid h-11 w-11 shrink-0 place-items-center rounded-md border border-line bg-ink text-mint">
-          <Tv size={20} />
+        <div className="h-16 w-11 shrink-0 overflow-hidden rounded-md border border-line bg-ink">
+          {item.series.poster_url ? (
+            <img src={item.series.poster_url} alt={item.series.title} className="h-full w-full object-cover" />
+          ) : (
+            <div className="grid h-full w-full place-items-center text-mint">
+              <Tv size={20} />
+            </div>
+          )}
         </div>
         <div className="min-w-0 flex-1">
           <h3 className="truncate text-lg font-bold text-white">{item.series.title}</h3>

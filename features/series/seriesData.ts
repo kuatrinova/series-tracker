@@ -171,6 +171,7 @@ export async function addSeriesFromPayload(params: {
         description: params.payload.description,
         ai_status: params.payload.status,
         rating: params.payload.rating,
+        poster_url: params.payload.poster_url ?? null,
         created_by: params.userId
       })
       .select("*")

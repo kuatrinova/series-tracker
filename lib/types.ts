@@ -16,6 +16,7 @@ export type Series = {
   description: string | null;
   ai_status: string | null;
   rating: number | null;
+  poster_url: string | null;
   created_by: string | null;
   created_at: string;
 };
@@ -66,6 +67,7 @@ export type AiSeriesResult = {
   seasons: AiSeason[];
   description: string;
   rating: number | null;
+  poster_url: string | null;
 };
 
 export const platforms = [

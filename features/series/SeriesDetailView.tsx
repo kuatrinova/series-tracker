@@ -35,6 +35,13 @@ export function SeriesDetailView({
       </header>
 
       <section className="mt-5 rounded-md border border-line bg-panel p-4">
+        {item.series.poster_url ? (
+          <img
+            src={item.series.poster_url}
+            alt={item.series.title}
+            className="mb-4 w-32 rounded-md object-cover"
+          />
+        ) : null}
         <p className="text-sm text-zinc-400">
           {item.series.year ?? "s/a"} · {item.series.genre ?? "Sin género"} · {item.series.rating ?? "n/d"}
         </p>

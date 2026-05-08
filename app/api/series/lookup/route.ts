@@ -90,7 +90,24 @@ La descripcion debe estar en español y tener maximo 80 palabras.`
       return NextResponse.json({ error: "OpenAI no devolvió contenido" }, { status: 502 });
     }
 
-    return NextResponse.json(JSON.parse(content));
+    const result = JSON.parse(content);
+
+    if (result.title && process.env.TMDB_API_KEY) {
+      try {
+        const tmdb = await fetch(
+          `https://api.themoviedb.org/3/search/tv?query=${encodeURIComponent(result.title)}&api_key=${process.env.TMDB_API_KEY}&language=es-ES`
+        );
+        const tmdbData = await tmdb.json();
+        const posterPath = tmdbData.results?.[0]?.poster_path ?? null;
+        result.poster_url = posterPath ? `https://image.tmdb.org/t/p/w500${posterPath}` : null;
+      } catch {
+        result.poster_url = null;
+      }
+    } else {
+      result.poster_url = null;
+    }
+
+    return NextResponse.json(result);
   } catch (error) {
     const message = error instanceof Error ? error.message : "Error consultando OpenAI";
     return NextResponse.json({ error: message }, { status: 502 });

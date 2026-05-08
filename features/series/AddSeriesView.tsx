@@ -131,6 +131,9 @@ export function AddSeriesView({
             </Button>
             {preview ? (
               <div className="grid gap-3 rounded-md border border-line bg-panel p-4">
+                {preview.poster_url ? (
+                  <img src={preview.poster_url} alt={preview.title} className="w-28 rounded-md object-cover" />
+                ) : null}
                 <h2 className="text-xl font-bold">{preview.title}</h2>
                 <p className="text-sm text-zinc-400">
                   {preview.year} · {preview.genre} · {preview.status}
