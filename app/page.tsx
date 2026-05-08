@@ -11,6 +11,7 @@ import { AddSeriesView } from "@/features/series/AddSeriesView";
 import { SeriesDetailView } from "@/features/series/SeriesDetailView";
 import { SeriesListView } from "@/features/series/SeriesListView";
 import {
+  deleteUserSeries,
   fetchUserSeries,
   setSeasonWatched,
   toggleEpisode,
@@ -168,6 +169,12 @@ export default function Home() {
                 watched
               })
             )
+          }
+          onDelete={() =>
+            mutate(async () => {
+              await deleteUserSeries(session.user.id, selected.id, selected.series_id);
+              setScreen("list");
+            })
           }
         />
       ) : null}

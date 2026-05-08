@@ -116,6 +116,18 @@ export async function setSeasonWatched(params: {
   if (error) throw error;
 }
 
+export async function deleteUserSeries(userId: string, userSeriesId: string, seriesId: string) {
+  const { error: watchedError } = await supabase
+    .from("watched_episodes")
+    .delete()
+    .eq("user_id", userId)
+    .eq("series_id", seriesId);
+  if (watchedError) throw watchedError;
+
+  const { error } = await supabase.from("user_series").delete().eq("id", userSeriesId);
+  if (error) throw error;
+}
+
 export async function addManualSeries(params: {
   userId: string;
   title: string;
@@ -161,6 +173,10 @@ export async function addSeriesFromPayload(params: {
   if (findError) throw findError;
 
   let seriesId = existing?.id as string | undefined;
+
+  if (seriesId && !existing?.poster_url && params.payload.poster_url) {
+    await supabase.from("series").update({ poster_url: params.payload.poster_url }).eq("id", seriesId);
+  }
 
   if (!seriesId) {
     const { data: created, error: createError } = await supabase

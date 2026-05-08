@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, CheckCheck } from "lucide-react";
+import { ArrowLeft, CheckCheck, Trash2 } from "lucide-react";
 import { Button } from "@/components/Button";
 import { Select } from "@/components/Field";
 import { progressPercent, episodeKey } from "@/lib/progress";
@@ -11,13 +11,15 @@ export function SeriesDetailView({
   onBack,
   onUpdateMeta,
   onToggleEpisode,
-  onSetSeason
+  onSetSeason,
+  onDelete
 }: {
   item: SeriesWithUserData;
   onBack: () => void;
   onUpdateMeta: (values: { platform?: string; status?: WatchStatus }) => void;
   onToggleEpisode: (seasonNumber: number, episodeNumber: number, watched: boolean) => void;
   onSetSeason: (seasonNumber: number, episodeCount: number, watched: boolean) => void;
+  onDelete: () => void;
 }) {
   const progress = progressPercent(item.seasons, item.watched);
   const watchedSet = new Set(item.watched.map((episode) => episodeKey(episode.season_number, episode.episode_number)));
@@ -28,10 +30,18 @@ export function SeriesDetailView({
         <button onClick={onBack} className="grid h-11 w-11 place-items-center rounded-md border border-line bg-panel">
           <ArrowLeft size={20} />
         </button>
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-mint">Detalle</p>
           <h1 className="truncate text-2xl font-bold">{item.series.title}</h1>
         </div>
+        <button
+          onClick={() => {
+            if (confirm(`¿Eliminar "${item.series.title}" de tu lista?`)) onDelete();
+          }}
+          className="grid h-11 w-11 shrink-0 place-items-center rounded-md border border-line bg-panel text-red-400 hover:border-red-400"
+        >
+          <Trash2 size={18} />
+        </button>
       </header>
 
       <section className="mt-5 rounded-md border border-line bg-panel p-4">
